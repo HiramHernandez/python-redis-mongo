@@ -3,14 +3,19 @@ from typing import List
 from app.schemas import UserSchema, UserResponse
 from app.services.user_service import user_service
 
-users_router = APIRouter(tags=["users"])
+__all__ = ('users_router',)
 
-@users_router.post("/", response_description="Add new user", response_model=UserResponse)
+users_router = APIRouter(
+    prefix="/api/users",
+    tags=["users"]
+)
+
+@users_router.post("", response_description="Add new user", response_model=UserResponse)
 async def create_user(user: UserSchema):
     created_user = await user_service.create_user(user.dict())
     return created_user
 
-@users_router.get("/", response_description="List all users", response_model=List[UserResponse])
+@users_router.get("", response_description="List all users", response_model=List[UserResponse])
 async def list_users():
     users = await user_service.get_all_users()
     return users

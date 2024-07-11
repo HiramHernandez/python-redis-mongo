@@ -11,11 +11,11 @@ class LoanService:
         result = await loan_collection.insert_one(loan.dict(by_alias=True))
         return await loan_collection.find_one({"_id": result.inserted_id})
 
-    async def get_all_loan(self) -> list:
+    async def get_all_loans(self) -> list:
         loans = await loan_collection.find().to_list(1000)
         return loans
 
-    async def get_load_by_id(self, loan_id: str) -> dict:
+    async def get_loan_by_id(self, loan_id: str) -> dict:
         return await loan_collection.find_one({"_id": ObjectId(loan_id)})
 
     async def update_loan(self, loan_id: str, loan_data: dict) -> dict:

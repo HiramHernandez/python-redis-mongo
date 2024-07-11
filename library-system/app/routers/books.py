@@ -3,14 +3,19 @@ from typing import List
 from app.schemas import BookSchema, BookResponse
 from app.services.book_service import book_service
 
-books_router = APIRouter(tags=["books"])
+__all__ = ('books_router',)
 
-@books_router.post("/", response_description="Add new book", response_model=BookResponse)
+books_router = APIRouter(
+    prefix="/api/books",
+    tags=["books"]
+)
+
+@books_router.post("", response_description="Add new book", response_model=BookResponse)
 async def create_book(book: BookSchema):
     created_book = await book_service.create_book(book.dict())
     return created_book
 
-@books_router.get("/", response_description="List all books", response_model=List[BookResponse])
+@books_router.get("", response_description="List all books", response_model=List[BookResponse])
 async def list_books():
     books = await book_service.get_all_books()
     return books

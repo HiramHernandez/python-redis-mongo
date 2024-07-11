@@ -1,16 +1,26 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from app.schemas import LoanSchema, LoanResponse
-from app.services.loan_service import loan_service
+from app.services.loan_service import *
+from app.services.book_service import *
 
-loans_router = APIRouter(tags=["loans"])
+__all__ = ('loans_router',)
 
-@loans_router.post("/", response_description="Add new loan", response_model=LoanResponse)
+loans_router = APIRouter(
+    prefix="/api/loans",
+    tags=["loans"]
+)
+
+@loans_router.post("", response_description="Add new loan", response_model=LoanResponse)
 async def create_loan(loan: LoanSchema):
     created_loan = await loan_service.create_loan(loan.dict())
+    await book_service.update_available_copies(loan.book_id)
+    is_available = await book_service.is_available_to_load(loan.book_id)
+    if not is_available:
+        raise HTTPException(status_code=500,detail=f"Book id {loan.book_id} isn't available")
     return created_loan
 
-@loans_router.get("/", response_description="List all loans", response_model=List[LoanResponse])
+@loans_router.get("", response_description="List all loans", response_model=List[LoanResponse])
 async def list_loans():
     loans = await loan_service.get_all_loans()
     return loans
